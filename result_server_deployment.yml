@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phonebook-rstlserver
+  labels:
+    app: pb-rstlserver
+spec:
+  selector:
+    matchLabels:
+      app: pb-rstlserver
+      tier: phonebook-rstlserver
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pb-rstlserver
+        tier: phonebook-rstlserver
+    spec:
+      containers:
+        - image: cloudnice/result-server:1.0
+          name: phonebook-rstlserver
+          env:
+            - name: MYSQL_DATABASE
+              # value: phonebook
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              # value: cloudnice
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              # value: Cloudnice1
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_DATABASE_HOST
+              # value: cloudnice
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_DATABASE_HOST
+          ports:
+            - containerPort: 80
+              name: pb-rstlserver

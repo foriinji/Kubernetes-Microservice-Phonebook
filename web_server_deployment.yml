@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phonebook-webserver
+  labels:
+    app: pb-webserver
+spec:
+  selector:
+    matchLabels:
+      app: pb-webserver
+      tier: phonebook-webserver
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pb-webserver
+        tier: phonebook-webserver
+    spec:
+      containers:
+        - image: cloudnice/webserver:1.1
+          name: phonebook-webserver
+          env:
+            - name: MYSQL_DATABASE
+              # value: phonebook
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              # value: cloudnice
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              # value: Cloudnice1
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_DATABASE_HOST
+              # value: cloudnice
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_DATABASE_HOST
+          ports:
+            - containerPort: 80
+              name: pb-webserver
